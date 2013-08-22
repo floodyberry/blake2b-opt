@@ -81,3 +81,8 @@ I don't have access to any XOP machines to bench so the XOP versions are more th
 <tr> <td>x86-32    </td> <td>2840</td> <td> 22.00</td> <td> 21.24</td> </tr>
 </tbody>
 </table>
+
+
+# LICENSE #
+
+Public Domain, or MIT
