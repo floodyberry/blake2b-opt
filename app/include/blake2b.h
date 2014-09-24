@@ -7,6 +7,10 @@
 #define LIB_PUBLIC
 #endif
 
+#if defined(__cplusplus)
+extern "C" {
+#endif
+
 typedef struct blake2b_state_t {
 	unsigned char opaque[256];
 } blake2b_state;
@@ -28,6 +32,10 @@ int blake2b_startup(void);
 #if defined(UTILITIES)
 void blake2b_fuzz(void);
 void blake2b_bench(void);
+#endif
+
+#if defined(__cplusplus)
+}
 #endif
 
 #endif /* BLAKE2B_H */
