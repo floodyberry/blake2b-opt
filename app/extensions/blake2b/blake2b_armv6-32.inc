@@ -198,7 +198,7 @@ str r11, [sp, #252]
 ldr r0, =blake2b_sigma_armv6
 mov r1, #12
 str r1, [sp, #304]
-blake2b_blocks_armv6_rounds
+b blake2b_blocks_armv6_rounds
 
 .ltorg
 
