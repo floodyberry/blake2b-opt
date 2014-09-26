@@ -30,7 +30,7 @@ Hashes `inlen` bytes from `in` and stores the result in `hash`.
 
 `void blake2b_keyed(unsigned char *hash, const unsigned char *in, const size_t inlen, const unsigned char *key, size_t keylen);`
 
-Hashes `inlen` bytes from `in` in keyed mode using `key`, and and stores the result in `hash`. `keylen` must be <= 32.
+Hashes `inlen` bytes from `in` in keyed mode using `key`, and and stores the result in `hash`. `keylen` must be <= 64.
 
 ## INCREMENTAL ##
 
@@ -42,7 +42,7 @@ Initializes `S` to the default state.
 
 `void blake2b_keyed_init(blake2b_state *S, const unsigned char *key, size_t keylen)`
 
-Initializes `S` in keyed mode with `key`. `keylen` must be <= 32.
+Initializes `S` in keyed mode with `key`. `keylen` must be <= 64.
 
 `void blake2b_update(blake2b_state *S, const unsigned char *in, size_t inlen)`
 

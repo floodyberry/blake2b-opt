@@ -10,7 +10,7 @@ enum blake2b_constants {
 	BLAKE2B_STRIDE = BLAKE2B_BLOCKBYTES,
 	BLAKE2B_STRIDE_NONE = 0,
 	BLAKE2B_HASHBYTES  = 64,
-	BLAKE2B_KEYBYTES = 32,
+	BLAKE2B_KEYBYTES = 64,
 };
 
 typedef struct blake2b_state_internal_t {
