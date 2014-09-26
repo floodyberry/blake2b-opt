@@ -15,19 +15,17 @@ typedef struct blake2b_state_t {
 	unsigned char opaque[256];
 } blake2b_state;
 
-/* initializes to default blake2b */
-void blake2b_init(blake2b_state *S);
+/* incremental */
+LIB_PUBLIC void blake2b_init(blake2b_state *S);
+LIB_PUBLIC void blake2b_keyed_init(blake2b_state *S, const unsigned char *key, size_t keylen);
+LIB_PUBLIC void blake2b_update(blake2b_state *S, const unsigned char *in, size_t inlen);
+LIB_PUBLIC void blake2b_final(blake2b_state *S, unsigned char *hash);
 
-/* hadh inlen bytes from in */
-void blake2b_update(blake2b_state *S, const unsigned char *in, size_t inlen);
+/* one-shot */
+LIB_PUBLIC void blake2b(unsigned char *hash, const unsigned char *in, const size_t inlen);
+LIB_PUBLIC void blake2b_keyed(unsigned char *hash, const unsigned char *in, size_t inlen, const unsigned char *key, size_t keylen);
 
-/* produce the final hash */
-void blake2b_final(blake2b_state *S, unsigned char *hash);
-
-/* in-place version */
-void blake2b(unsigned char *hash, const unsigned char *in, const size_t inlen);
-
-int blake2b_startup(void);
+LIB_PUBLIC int blake2b_startup(void);
 
 #if defined(UTILITIES)
 void blake2b_fuzz(void);

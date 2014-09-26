@@ -10,6 +10,7 @@ enum blake2b_constants {
 	BLAKE2B_STRIDE = BLAKE2B_BLOCKBYTES,
 	BLAKE2B_STRIDE_NONE = 0,
 	BLAKE2B_HASHBYTES  = 64,
+	BLAKE2B_KEYBYTES = 32,
 };
 
 typedef struct blake2b_state_internal_t {
@@ -224,6 +225,20 @@ blake2b_init(blake2b_state *S) {
 	memset(state->t, 0, sizeof(state->t) + sizeof(state->f) + sizeof(state->leftover));
 }
 
+/* initialized the state in serial-key'd mode */
+LIB_PUBLIC void
+blake2b_keyed_init(blake2b_state *S, const unsigned char *key, size_t keylen) {
+	unsigned char k[BLAKE2B_BLOCKBYTES] = {0};
+	if (keylen > BLAKE2B_KEYBYTES) {
+		fprintf(stderr, "key size larger than %u passed to blake2b_keyed_init", BLAKE2B_KEYBYTES);
+		exit(-1);
+	} else {
+		memcpy(k, key, keylen);
+	}
+	blake2b_init(S);
+	blake2b_update(S, k, BLAKE2B_BLOCKBYTES);
+}
+
 /* hash inlen bytes from in, which may or may not be word aligned, returns the number of bytes used */
 static size_t
 blake2b_consume_blocks(blake2b_state_internal *state, const unsigned char *in, size_t inlen) {
@@ -308,6 +323,15 @@ blake2b(unsigned char *hash, const unsigned char *in, size_t inlen) {
 	blake2b_opt->blake2b_blocks(state, in, inlen, BLAKE2B_STRIDE_NONE);
 	blake2b_store_hash(state, hash);
 }
+
+LIB_PUBLIC void
+blake2b_keyed(unsigned char *hash, const unsigned char *in, size_t inlen, const unsigned char *key, size_t keylen) {
+	blake2b_state S;
+	blake2b_keyed_init(&S, key, keylen);
+	blake2b_update(&S, in, inlen);
+	blake2b_final(&S, hash);
+}
+
 
 
 /* initialize the state in serial mode, setting the counter to 0xffffffffffffffff */
