@@ -1,6 +1,6 @@
 SECTION_TEXT
 
-GLOBAL_HIDDEN_FN blake2b_blocks_xop
+GLOBAL_HIDDEN_FN_EXT blake2b_blocks_xop, 4, 16
 pushq %rbp
 pushq %rbx
 pushq %r12

@@ -1,6 +1,6 @@
 SECTION_TEXT
 
-GLOBAL_HIDDEN_FN blake2b_blocks_avx
+GLOBAL_HIDDEN_FN_EXT blake2b_blocks_avx, 4, 16
 pushq %rbp
 movq %rsp, %rbp
 andq $-64, %rsp

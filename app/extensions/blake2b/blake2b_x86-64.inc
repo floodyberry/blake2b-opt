@@ -1,6 +1,6 @@
 SECTION_TEXT
 
-GLOBAL_HIDDEN_FN blake2b_blocks_x86
+GLOBAL_HIDDEN_FN_EXT blake2b_blocks_x86, 4, 8
 pushq %rbx
 pushq %rbp
 pushq %r12

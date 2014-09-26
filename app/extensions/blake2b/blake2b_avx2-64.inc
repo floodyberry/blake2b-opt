@@ -1,6 +1,6 @@
 SECTION_TEXT
 
-GLOBAL_HIDDEN_FN blake2b_blocks_avx2
+GLOBAL_HIDDEN_FN_EXT blake2b_blocks_avx2, 4, 16
 pushq %rbp
 movl $128, %r10d
 movq %rsp, %rbp
