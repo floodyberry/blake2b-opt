@@ -88,15 +88,13 @@ typedef struct blake2b_impl_t {
 #if defined(CPU_64BITS)
 	#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/64", ref)
 	#include "blake2b/blake2b_ref-64.inc"
-#elif defined(CPU_32BITS)
-	#if defined(HAVE_INT64)
-		#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/3264", ref)
-		#include "blake2b/blake2b_ref-3264.inc"
-	#else
-		#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/32", ref)
-		#include "blake2b/blake2b_ref-32.inc"
-	#endif
-#elif defined(CPU_16BITS)
+#elif defined(HAVE_INT64)
+	#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/3264", ref)
+	#include "blake2b/blake2b_ref-3264.inc"
+#elif defined(HAVE_INT32)
+	#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/32", ref)
+	#include "blake2b/blake2b_ref-32.inc"
+#elif defined(HAVE_INT16)
 	#define BLAKE2B_GENERIC BLAKE2B_IMPL(CPUID_GENERIC, "generic/16", ref)
 	#include "blake2b/blake2b_ref-16.inc"
 #else
@@ -334,7 +332,7 @@ blake2b_keyed(unsigned char *hash, const unsigned char *in, size_t inlen, const 
 
 
 
-/* initialize the state in serial mode, setting the counter to 0xffffffffffffffff */
+/* initialize the state in serial mode, setting the counter to 0xffffffffffffffff:0xffffffffffffffff */
 static void
 blake2b_init_test(blake2b_state *S) {
 	blake2b_state_internal *state = (blake2b_state_internal *)S;
@@ -345,7 +343,7 @@ blake2b_init_test(blake2b_state *S) {
 	state->leftover = 0;
 }
 
-/* hashes with the counter starting at 0xffffffffffffffff */
+/* hashes with the counter starting at 0xffffffffffffffff:0xffffffffffffffff */
 static void
 blake2b_test(unsigned char *hash, const unsigned char *in, size_t inlen) {
 	blake2b_state S;
