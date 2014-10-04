@@ -1,5 +1,13 @@
+#if defined(HAVE_INT8)
+	typedef uint8_t blake2b_uint8;
+	#define MASK8(x) (x)
+#else
+	typedef unsigned char blake2b_uint8;
+	#define MASK8(x) ((x) & 0xff)
+#endif
+
 typedef struct blake2b_uint64 {
-	unsigned char w[8];
+	blake2b_uint8 w[8];
 } blake2b_uint64;
 
 static void
@@ -13,7 +21,7 @@ static void
 U64TO8(unsigned char *p, const blake2b_uint64 *v) {
 	size_t i;
 	for (i = 0; i < 8; i++)
-		p[i] = v->w[i];
+		p[i] = (unsigned char)v->w[i];
 }
 
 static void
@@ -26,23 +34,23 @@ XOR64(blake2b_uint64 *x, const blake2b_uint64 *y) {
 static void
 ADD64(blake2b_uint64 *x, const blake2b_uint64 *y) {
 	size_t i;
-	unsigned char cp = 0;
+	blake2b_uint8 cp = 0;
 	for (i = 0; i < 8; i++) {
-		unsigned char u = x->w[i] + y->w[i];
-		unsigned char c = (u < x->w[i]);
-		x->w[i] = u + cp;
+		blake2b_uint8 u = MASK8(x->w[i] + y->w[i]);
+		blake2b_uint8 c = (u < x->w[i]);
+		x->w[i] = MASK8(u + cp);
 		cp = (x->w[i] < u) | c;
 	}
 }
 
 static void
-ADD64_BYTE(blake2b_uint64 *x, unsigned char y) {
+ADD64_BYTE(blake2b_uint64 *x, blake2b_uint8 y) {
 	size_t i;
-	unsigned char u = x->w[0];
-	x->w[0] += y;
+	blake2b_uint8 u = x->w[0];
+	x->w[0] = MASK8(x->w[0] + y);
 	for (i = 1; i < 8; i++) {
-		unsigned char ui = x->w[i];
-		x->w[i] += (x->w[i - 1] < u);
+		blake2b_uint8 ui = x->w[i];
+		x->w[i] = MASK8(x->w[i] + (x->w[i - 1] < u));
 		u = ui;
 	}
 }
@@ -51,7 +59,7 @@ static void
 ROTR64_32(blake2b_uint64 *x) {
 	size_t i;
 	for (i = 0; i < 4; i++) {
-		unsigned char u = x->w[i];
+		blake2b_uint8 u = x->w[i];
 		x->w[i] = x->w[i + 4];
 		x->w[i + 4] = u;
 	}
@@ -59,7 +67,7 @@ ROTR64_32(blake2b_uint64 *x) {
 
 static void
 ROTR64_24(blake2b_uint64 *x) {
-	unsigned char u = x->w[0];
+	blake2b_uint8 u = x->w[0];
 	x->w[0] = x->w[3];
 	x->w[3] = x->w[6];
 	x->w[6] = x->w[1];
@@ -72,8 +80,8 @@ ROTR64_24(blake2b_uint64 *x) {
 
 static void
 ROTR64_16(blake2b_uint64 *x) {
-	unsigned char u0 = x->w[0];
-	unsigned char u1 = x->w[1];
+	blake2b_uint8 u0 = x->w[0];
+	blake2b_uint8 u1 = x->w[1];
 	x->w[0] = x->w[2];
 	x->w[1] = x->w[3];
 	x->w[2] = x->w[4];
@@ -87,10 +95,10 @@ ROTR64_16(blake2b_uint64 *x) {
 static void
 ROTR64_63(blake2b_uint64 *x) {
 	size_t i;
-	unsigned char u0 = x->w[7] >> 7;
+	blake2b_uint8 u0 = x->w[7] >> 7;
 	for (i = 0; i < 8; i++) {
-		unsigned char u1 = x->w[i] >> 7;
-		x->w[i] = (x->w[i] << 1) | u0;
+		blake2b_uint8 u1 = x->w[i] >> 7;
+		x->w[i] = MASK8((x->w[i] << 1) | u0);
 		u0 = u1;
 	}
 }
@@ -106,7 +114,7 @@ IS_ZERO64(const blake2b_uint64 *x) {
 }
 
 static int
-IS_LT64_BYTE(const blake2b_uint64 *x, unsigned char y) {
+IS_LT64_BYTE(const blake2b_uint64 *x, blake2b_uint8 y) {
 	size_t i;
 	for (i = 1; i < 8; i++) {
 		if (x->w[i])
@@ -127,11 +135,11 @@ blake2b_blocks_ref(blake2b_state_internal *S, const unsigned char *in, size_t by
 		{{0x6b, 0xbd, 0x41, 0xfb, 0xab, 0xd9, 0x83, 0x1f}},
 		{{0x79, 0x21, 0x7e, 0x13, 0x19, 0xcd, 0xe0, 0x5b}}
 	};
-	static const unsigned char indices[32] = {
+	static const blake2b_uint8 indices[32] = {
 		0,4,8,12,1,5,9,13,2,6,10,14,3,7,11,15,
 		0,5,10,15,1,6,11,12,2,7,8,13,3,4,9,14
 	};
-	static const unsigned char sigma[12][16] = {
+	static const blake2b_uint8 sigma[12][16] = {
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		{14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3},
 		{11, 8, 12, 0, 5, 2, 15, 13, 10, 14, 3, 6, 7, 1, 9, 4},
@@ -145,7 +153,7 @@ blake2b_blocks_ref(blake2b_state_internal *S, const unsigned char *in, size_t by
 		{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15},
 		{14, 10, 4, 8, 9, 15, 13, 6, 1, 12, 0, 2, 11, 7, 5, 3}
 	};
-	const unsigned char inc = (bytes >= 128) ? 128 : (unsigned char)bytes;
+	const blake2b_uint8 inc = (bytes >= 128) ? 128 : (blake2b_uint8)bytes;
 	blake2b_uint64 tf[4];
 	blake2b_uint64 h[8];
 	unsigned char buffer[128];
@@ -184,10 +192,10 @@ blake2b_blocks_ref(blake2b_state_internal *S, const unsigned char *in, size_t by
 		for (i = 0; i < 12; i++) {
 			for (j = 0; j < 8; j++) {
 				size_t basei = (j * 4);
-				unsigned char a = indices[basei + 0];
-				unsigned char b = indices[basei + 1];
-				unsigned char c = indices[basei + 2];
-				unsigned char d = indices[basei + 3];
+				blake2b_uint8 a = indices[basei + 0];
+				blake2b_uint8 b = indices[basei + 1];
+				blake2b_uint8 c = indices[basei + 2];
+				blake2b_uint8 d = indices[basei + 3];
 				size_t bases = (j * 2);
 
 				ADD64(v + a, m + sigma[i][bases + 0]);
